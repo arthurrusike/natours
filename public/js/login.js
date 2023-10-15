@@ -1,6 +1,6 @@
 /* eslint-disable*/
 
-//VALUES
+//VALUES declaration
 const logOutBtn = document.querySelector('.nav__el--logout');
 const loginForm = document.querySelector('.form--login');
 const userDataForm = document.querySelector('.form-user-data');
