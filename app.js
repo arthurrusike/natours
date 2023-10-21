@@ -1,3 +1,4 @@
+const cors = require('cors');
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
@@ -13,9 +14,16 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./Routes/tourRoutes');
 const userRouter = require('./Routes/userRoutes');
 const reviewRouter = require('./Routes/reviewRoutes');
+const bookingRouter = require('./Routes/bookingRoutes');
 const viewRouter = require('./Routes/viewRoutes');
 
 const app = express();
+
+app.use(
+  cors({
+    origin: 'http://127.0.0.1:*',
+  }),
+);
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -24,54 +32,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Set security HTTP headers
-const scriptSrcUrls = [
-  'https://*.tiles.mapbox.com',
-  'https://api.mapbox.com',
-  'https://events.mapbox.com',
-  'https://js.stripe.com',
-  'https://m.stripe.network',
-  'https://*.cloudflare.com',
-  'ws://127.0.0.1:*/',
-  'https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js',
-];
-const connectSrcUrls = [
-  'https://*.tiles.mapbox.com',
-  'https://api.mapbox.com',
-  'https://events.mapbox.com',
-  'https://*.stripe.com',
-  'https://bundle.js:*',
-  'ws://127.0.0.1:*/',
-  'https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js',
-];
-
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      baseUri: ["'self'"],
-      scriptSrc: ["'self'", 'https:', 'http:', 'blob:', ...scriptSrcUrls],
-      frameSrc: ["'self'", 'https://js.stripe.com', ...connectSrcUrls],
-      objectSrc: ["'none'"],
-      workerSrc: [
-        "'self'",
-        'blob:',
-        'https://m.stripe.network',
-        ...connectSrcUrls,
-      ],
-      childSrc: ["'self'", 'blob:'],
-      imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
-      formAction: ["'self'"],
-      connectSrc: [
-        "'self'",
-        "'unsafe-inline'",
-        'data:',
-        'blob:',
-        ...connectSrcUrls,
-      ],
-      upgradeInsecureRequests: [],
-    },
-  }),
-);
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // Development logging
 if (process.env.NODE_ENV === 'development') {
@@ -114,7 +75,7 @@ app.use(
 // Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
- 
+
   next();
 });
 
@@ -123,6 +84,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

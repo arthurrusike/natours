@@ -1,59 +1,108 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-const nodemailer = require('nodemailer');
-const { dirname } = require('path');
+/* eslint-disable*/
 const pug = require('pug');
-const { convert } = require('html-to-text');
+const Mailjet = require('node-mailjet');
+const apiKey = process.env.MAILJET_API_KEY;
+const apiSecret = process.env.MAILJET_EMAIL_SECRET_KEY;
 
-module.exports = class Email {
+class EmailObject {
   constructor(user, url) {
     this.to = user.email;
     this.firstName = user.name.split(' ')[0];
     this.url = url;
-    this.from = `Reggies Rusike <${process.env.EMAIL_FROM}>`;
-  }
-
-  newTransport() {
-    if (process.env.NODE_ENV === 'production') {
-      return 1;
-    }
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-  }
-
-  async send(template, subject) {
-    // 1Render Html template based on pug template
-    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
-      firstName: this.firstName,
-      url: this.url,
-      subject,
-    });
-
-    //2. Define email options
-    const mailOptions = {
-      from: this.from,
-      to: this.to,
-      subject,
-      html,
-      text: convert(html),
-    };
-
-    // 3. Create a TRansport and send email
-
-    await this.newTransport().sendMail(mailOptions);
+    this.from = `Jonas Schmedtmann <${process.env.EMAIL_FROM}>`;
   }
 
   async sendWelcome() {
-    await this.send('welcome', 'Welcome to Chef Reggies Kitchen');
+    await new Mailjet.apiConnect(apiKey, apiSecret, {
+      timeout: 1000,
+      maxBodyLength: 1500,
+      maxContentLength: 100,
+      proxy: {
+        protocol: 'http',
+        host: process.env.EMAIL_HOST_MAILJET,
+        port: process.env.EMAIL_PORT_MAILJET,
+      },
+    })
+      .post('send', { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: process.env.EMAIL_FROM,
+              Name: 'Arthur',
+            },
+            To: [
+              {
+                Email: this.to,
+                Name: this.firstName,
+              },
+            ],
+            Subject: 'Welcome',
+            TextPart: 'My first Mailjet email',
+            HTMLPart: pug.renderFile(
+              `${__dirname}/../views/email/welcome.pug`,
+              {
+                firstName: this.firstName,
+                url: this.url,
+              },
+            ),
+            CustomID: 'AppGettingStartedTest',
+          },
+        ],
+      })
+      .then((res) => {
+        console.log("Welcoome Email Successfully sent");
+      })
+      .catch((err) => {
+        console.log(err.stack);
+      });
   }
 
-  async sendPasswordRest() {
-    await this.send('passwordReset', 'Your password reset token valid for 10 Mins');
+  async sendPasswordReset() {
+    await new Mailjet.apiConnect(apiKey, apiSecret, {
+      timeout: 1000,
+      maxBodyLength: 1500,
+      maxContentLength: 100,
+      proxy: {
+        protocol: 'http',
+        host: process.env.EMAIL_HOST_MAILJET,
+        port: process.env.EMAIL_PORT_MAILJET,
+      },
+    })
+      .post('send', { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: process.env.EMAIL_FROM,
+              Name: this.firstName,
+            },
+            To: [
+              {
+                Email: this.to,
+                Name: this.firstName,
+              },
+            ],
+            Subject: 'User Password Reset',
+            TextPart: 'My first Mailjet email',
+            HTMLPart:  pug.renderFile(
+              `${__dirname}/../views/email/passwordReset.pug`,
+              {
+                firstName: this.firstName,
+                url: this.url,
+              },
+            ),
+            CustomID: 'UserPasswordReset',
+          },
+        ],
+      })
+      .then((result) => {
+        console.log('Password successfully set!!');
+      })
+      .catch((err) => {
+        console.log(err.statusCode);
+      });
   }
+}
 
-};
+module.exports = EmailObject;

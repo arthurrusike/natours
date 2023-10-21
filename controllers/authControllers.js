@@ -1,11 +1,11 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { promisify } = require('util');
+const Mailjet = require('node-mailjet');
+const EmailObject = require('../../starter/utils/email');
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const jwt = require('jsonwebtoken');
-
-const Email = require('../utils/email');
 
 const User = require('../models/userModel');
 const catchAsyc = require('../utils/catchAsyc');
@@ -55,7 +55,7 @@ exports.signup = catchAsyc(async (req, res, next) => {
 
   const url = `${req.protocol}://${req.get('host')}/me`;
 
-  await new Email(newUser, url).sendWelcome();
+  await new EmailObject(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, res);
 });
@@ -197,10 +197,9 @@ exports.forgotPassword = catchAsyc(async (req, res, next) => {
     'host',
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Check your emails for reset password Link. ${resetURL}. \n if you have not forgetten your password please ignore`;
+   try {
 
-  try {
-       await new Email(user, resetURL).sendPasswordRest();
+    await new EmailObject(user, resetURL).sendPasswordReset();
 
     res.status(200).json({
       status: 'success',
@@ -228,6 +227,7 @@ exports.resetPassword = catchAsyc(async (req, res, next) => {
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
+
 
   // 2) If token has not expired, and there is user, set the new password
   if (!user) {

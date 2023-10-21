@@ -1,4 +1,3 @@
-/* eslint-disable*/
 
 //VALUES declaration
 const logOutBtn = document.querySelector('.nav__el--logout');

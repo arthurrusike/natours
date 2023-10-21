@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const Booking = require('../models/bookingModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appErrors');
 const catchAsyc = require('../utils/catchAsyc');
@@ -22,43 +23,39 @@ exports.getTour = catchAsyc(async (req, res, next) => {
     return next(new AppError('There is no Tour with that Name', 404));
   }
 
-  res
-    .status(200)
-    .set(
-      'Content-Security-Policy',
-      'connect-src https://*.tiles.mapbox.com https://api.mapbox.com https://events.mapbox.com https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js',
-    )
-    .render('tour', {
-      title: tour.name,
-      tour,
-    });
+  res.status(200).render('tour', {
+    title: tour.name,
+    tour,
+  });
 });
 
 exports.getLoginForm = (req, res, next) => {
-  res
-    .status(200)
-    .set(
-      'Content-Security-Policy',
-      "connect-src 'self' https://cdnjs.cloudflare.com http://127.0.0.1:3000/api/v1/users/login https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js",
-    )
-    .render('login', {
-      title: 'Log into your Account',
-    });
+  res.status(200).render('login', {
+    title: 'Log into your Account',
+  });
 };
 
 exports.getAccount = (req, res) => {
-  res
-    .status(200)
-    .set(
-      'Content-Security-Policy',
-      "connect-src 'self' https://cdnjs.cloudflare.com http://127.0.0.1:3000/api/v1/users/login https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js",
-    )
-    .render('account', {
-      title: 'Your Account',
-    });
+  res.status(200).render('account', {
+    title: 'Your Account',
+  });
 };
 
+exports.getMyTours = catchAsyc( async (req, res, next) => {
+  //1.) Find All Bookings 
 
+  const bookings = await Booking.find({user: req.user.id})
+
+
+  //2), Find Tours with Returned IDs
+    const tourIDs = bookings.map(el => el.tour);
+    const tours = await Tour.find({ _id: {$in: tourIDs}})
+
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours
+  });
+});
 
 exports.updateUserData = catchAsyc(async (req, res, next) => {
   console.log(req.body);
@@ -74,14 +71,8 @@ exports.updateUserData = catchAsyc(async (req, res, next) => {
     },
   );
   console.log('at the point of rendering Account');
-  res
-    .status(200)
-    .set(
-      'Content-Security-Policy',
-      "connect-src 'self' https://cdnjs.cloudflare.com http://127.0.0.1:3000/api/v1/users/login https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js",
-    )
-    .render('account', {
-      title: 'Your Account',
-      user: updatedUser,
-    });
+  res.status(200).render('account', {
+    title: 'Your Account',
+    user: updatedUser,
+  });
 });
