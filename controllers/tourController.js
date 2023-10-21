@@ -15,7 +15,7 @@ const tours1 = JSON.parse(
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, callBack) => {
-  console.log(file);
+  
   if (file.mimetype.startsWith('image')) {
     callBack(null, true);
   } else {

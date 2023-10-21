@@ -1,48 +1,3 @@
-// // eslint-disable-next-line import/no-extraneous-dependencies
-// const mongoose = require('mongoose');
-
-// // eslint-disable-next-line import/no-extraneous-dependencies
-// const dotenv = require('dotenv');
-
-// dotenv.config({ path: './config.env' });
-// const User = require('./models/userModel');
-
-// const app = require('./app');
-
-// const DB = process.env.DATABASE.replace(
-//   '<PASSWORD>',
-//   process.env.DATABASE_PASSWORD,
-// );
-
-// mongoose
-//   .connect(DB, {
-//     useNewUrlParser: true,
-//     useCreateIndex: true,
-//     useFindAndModify: false,
-//     // useUnifiedTopology: true
-//   })
-//   .then(() => console.log('DB Connection Succeesfull'));
-
-// const port = process.env.PORT || 3000;
-// const server = app.listen(port, () => {
-//   console.log(`App running on port number: ${port}...`);
-// });
-
-// process.on('unhandledRejection', (err) => {
-//   console.log('This where the error is unhandled Rejection:::::::::::');
-//   console.log(err.name);
-//   server.close(() => {
-//     process.exit(1);
-//   });
-// });
-
-// process.on('uncaughtException', (err) => {
-//   console.log('This where the error is uncaughtExeception:::::::::::');
-//     server.close(() => {
-//     process.exit(1);
-//   });
-// });
-
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
@@ -70,7 +25,7 @@ mongoose
 
 const port = process.env.PORT || 1234;
 const server = app.listen(port, () => {
-  console.log(`App running on port ${port}...`);
+  console.log(`App running...`);
 });
 
 process.on('unhandledRejection', (err) => {

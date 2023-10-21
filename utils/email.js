@@ -51,7 +51,7 @@ class EmailObject {
         ],
       })
       .then((res) => {
-        console.log("Welcoome Email Successfully sent");
+        console.log("Welcome Email Successfully sent");
       })
       .catch((err) => {
         console.log(err.stack);
@@ -97,7 +97,7 @@ class EmailObject {
         ],
       })
       .then((result) => {
-        console.log('Password successfully set!!');
+        
       })
       .catch((err) => {
         console.log(err.statusCode);

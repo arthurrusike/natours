@@ -8,7 +8,7 @@ const handlerFactory = require('./handlerFactory');
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, callBack) => {
-  console.log(file);
+  // console.log(file);
   if (file.mimetype.startsWith('image')) {
     callBack(null, true);
   } else {
@@ -28,9 +28,7 @@ exports.resizeUserPhoto = catchAsyc(async (req, res, next) => {
 
   if (!req.file) return next();
 
-  console.log(req.file.filename);
-
- await sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })

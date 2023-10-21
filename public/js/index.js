@@ -8,9 +8,9 @@ const bookTour = async (tourId) => {
     // 1. Get checkout Session from the API
 
     const session = await axios(
-      `http://127.0.0.1:3000/api/v1/bookings/checkout-session/${tourId}`,
+      `/api/v1/bookings/checkout-session/${tourId}`,
     );
-    console.log(session);
+    
 
     //2. Create Checkout form + charge credit card
     window.location.replace(session.data.session.url)
@@ -18,7 +18,7 @@ const bookTour = async (tourId) => {
     //   sessionId: session.data.session.id,
     // });
   } catch (error) {
-    console.log(error);
+   
   }
 };
 
